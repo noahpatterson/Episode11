@@ -2,6 +2,7 @@ require_relative "../api"
 require "rspec"
 require "rack/test"
 require 'spec_helper'
+require 'json'
 
 set :environment, :test
 
@@ -28,6 +29,13 @@ describe "The Api" do
     time_in_utc.should be_within(1).of(6.seconds.ago.utc)
     execution_time = Time.parse(log_request.fetch("execution_time"))
     execution_time.should be_within(1).of(time.utc)
+  end
+
+  it 'should store the request in memory from a post' do
+    request = {'post' => {'text' => 'a post', 'time' => "#{Time.now}", "execution_time" => "#{Time.now}" }}.to_json
+    post "/", 'request' => request
+    log_request = JSON.parse(last_response.body).last['logrequest']
+    log_request.fetch('text').should eq('a post')
   end
 
   it "not be ok with /wack" do

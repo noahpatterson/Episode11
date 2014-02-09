@@ -37,3 +37,10 @@ get '/' do
   @logs = LogRequest.log
   render :rabl, :logs, :format => "json"
 end
+
+post '/' do
+  request = JSON.parse(params['request'])['post']
+  LogRequest.log_request request['time'], request['execution_time'], request['text']
+  @logs = LogRequest.log
+  render :rabl, :logs, :format => "json"  
+end
